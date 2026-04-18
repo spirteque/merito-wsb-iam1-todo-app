@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.todoapp.ui.auth.LoginScreen
 import com.example.todoapp.ui.auth.RegisterScreen
+import com.example.todoapp.ui.contact.ContactScreen
 import com.example.todoapp.ui.home.HomeScreen
 import com.example.todoapp.ui.settings.SettingsScreen
 
@@ -64,7 +65,7 @@ fun AppNavHost(
         }
 
         composable(Destination.Contact.route) {
-            // placeholder
+            ContactScreen()
         }
 
         composable(Destination.Map.route) {
