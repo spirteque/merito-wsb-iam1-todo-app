@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.example.todoapp.ui.auth.LoginScreen
 import com.example.todoapp.ui.auth.RegisterScreen
 import com.example.todoapp.ui.home.HomeScreen
+import com.example.todoapp.ui.settings.SettingsScreen
 
 @Composable
 fun AppNavHost(
@@ -51,7 +52,15 @@ fun AppNavHost(
         }
 
         composable(Destination.Settings.route) {
-            // placeholder
+            SettingsScreen(
+                darkMode = darkMode,
+                onDarkModeToggle = onDarkModeToggle,
+                onSignOut = {
+                    navController.navigate(Destination.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(Destination.Contact.route) {

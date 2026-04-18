@@ -2,7 +2,6 @@ package com.example.todoapp.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.example.todoapp.data.local.TaskDao
 import com.example.todoapp.data.local.TodoDatabase
 import dagger.Module
@@ -27,9 +26,7 @@ object DatabaseModule {
             context,
             TodoDatabase::class.java,
             "todo_database"
-        )
-            .setDriver(BundledSQLiteDriver()) // używamy bundled SQLite zamiast systemowego
-            .build()
+        ).build()
     }
 
     @Provides
