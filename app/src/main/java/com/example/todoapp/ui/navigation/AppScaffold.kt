@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,6 +21,8 @@ import com.example.todoapp.R
 import com.example.todoapp.data.repository.AuthRepository
 import com.example.todoapp.ui.theme.TodoAppTheme
 import kotlinx.coroutines.launch
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
 
 /** Dane jednego elementu dolnej nawigacji. */
 private data class BottomNavItem(
@@ -37,10 +40,12 @@ private val bottomNavItems = listOf(
 /**
  * Główny composable aplikacji — odpowiada za:
  * - motyw (ciemny/jasny),
- * - Navigation Drawer,
- * - Bottom Navigation Bar,
+ * - TopAppBar z przyciskiem otwierającym Navigation Drawer,
+ * - Navigation Drawer z dostępem do mapy,
+ * - Bottom Navigation Bar (Home, Ustawienia, Kontakt),
  * - NavHost ze wszystkimi ekranami.
  */
+
 @Composable
 fun AppRoot(authRepository: AuthRepository) {
     val startDestination = if (authRepository.isLoggedIn) Destination.Home.route else Destination.Login.route
@@ -85,6 +90,22 @@ fun AppRoot(authRepository: AuthRepository) {
             }
         ) {
             Scaffold(
+                topBar = {
+                    if (!isAuthScreen) {
+                        @OptIn(ExperimentalMaterial3Api::class)
+                        TopAppBar(
+                            title = { Text(stringResource(R.string.app_name)) },
+                            navigationIcon = {
+                                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = "Menu"
+                                    )
+                                }
+                            }
+                        )
+                    }
+                },
                 bottomBar = {
                     if (!isAuthScreen) {
                         NavigationBar {
