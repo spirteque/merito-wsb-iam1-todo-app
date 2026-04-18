@@ -5,11 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.todoapp.ui.auth.LoginScreen
+import com.example.todoapp.ui.auth.RegisterScreen
 
-/**
- * NavHost — definiuje graf nawigacji całej aplikacji.
- * darkMode i onDarkModeToggle przekazujemy z AppRoot do SettingsScreen.
- */
 @Composable
 fun AppNavHost(
     navController: NavHostController,
@@ -24,27 +22,43 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable(Destination.Login.route) {
-            // LoginScreen — placeholder
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(Destination.Home.route) {
+                        popUpTo(Destination.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = {
+                    navController.navigate(Destination.Register.route)
+                }
+            )
         }
 
         composable(Destination.Register.route) {
-            // RegisterScreen — placeholder
+            RegisterScreen(
+                onRegisterSuccess = {
+                    navController.navigate(Destination.Home.route) {
+                        popUpTo(Destination.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = { navController.popBackStack() }
+            )
         }
 
         composable(Destination.Home.route) {
-            // HomeScreen — placeholder
+            // placeholder
         }
 
         composable(Destination.Settings.route) {
-            // SettingsScreen — placeholder
+            // placeholder
         }
 
         composable(Destination.Contact.route) {
-            // ContactScreen — placeholder
+            // placeholder
         }
 
         composable(Destination.Map.route) {
-            // MapScreen — placeholder
+            // placeholder
         }
     }
 }
