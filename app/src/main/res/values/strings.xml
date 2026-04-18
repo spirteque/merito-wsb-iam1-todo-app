@@ -1,3 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TodoApp</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_settings">Ustawienia</string>
+    <string name="nav_contact">Kontakt</string>
+    <string name="nav_map">Mapa</string>
+
+    <!-- Auth -->
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Hasło</string>
+    <string name="auth_login">Zaloguj się</string>
+    <string name="auth_register">Zarejestruj się</string>
+    <string name="auth_no_account">Nie masz konta? Zarejestruj się</string>
+    <string name="auth_have_account">Masz już konto? Zaloguj się</string>
+    <string name="auth_sign_out">Wyloguj</string>
+    <string name="auth_error_empty">Uzupełnij wszystkie pola</string>
+
+    <!-- Tasks -->
+    <string name="task_new_placeholder">Nowe zadanie…</string>
+    <string name="task_add">Dodaj</string>
+    <string name="task_edit">Edytuj</string>
+    <string name="task_delete">Usuń</string>
+    <string name="task_empty">Brak zadań. Dodaj pierwsze!</string>
+    <string name="task_remote_section">Propozycje z sieci</string>
+    <string name="task_remote_refresh">Odśwież</string>
+    <string name="task_remote_error">Błąd pobierania. Spróbuj ponownie.</string>
+    <string name="task_import_from_remote">Importuj</string>
+    <string name="task_edit_title">Edytuj zadanie</string>
+    <string name="task_title_label">Tytuł</string>
+    <string name="task_description_label">Opis</string>
+    <string name="task_cancel">Anuluj</string>
+    <string name="task_save">Zapisz</string>
+
+    <!-- Settings -->
+    <string name="settings_account">Konto</string>
+    <string name="settings_logged_in_as">Zalogowano jako: %1$s</string>
+    <string name="settings_theme">Ciemny motyw</string>
+    <string name="settings_about">O aplikacji</string>
+    <string name="settings_version">Wersja 1.0</string>
+
+    <!-- Contact -->
+    <string name="contact_title">Kontakt</string>
+    <string name="contact_email">Napisz email</string>
+    <string name="contact_phone">Zadzwoń</string>
+    <string name="contact_website">Otwórz stronę</string>
+    <string name="contact_maps">Pokaż na mapach</string>
+    <string name="contact_no_app">Brak aplikacji do obsługi tej akcji</string>
+
+    <!-- Map -->
+    <string name="map_campus_marker">PJATK</string>
+    <string name="map_me_marker">Moja lokalizacja</string>
+    <string name="map_center_on_me">Pokaż mnie</string>
+    <string name="map_permission_rationale">Potrzebujemy dostępu do lokalizacji</string>
 </resources>
