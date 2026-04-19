@@ -21,16 +21,18 @@ import com.example.todoapp.domain.model.Task
 
 /**
  * Główny ekran aplikacji.
- * Pokazuje lokalną listę zadań i propozycje z API.
+ * Lokalna lista zadań na pierwszym planie; propozycje z API w dolnym arkuszu (modal).
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var taskToEdit by remember { mutableStateOf<Task?>(null) }
+    var showRemoteSheet by remember { mutableStateOf(false) }
+    val remoteSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 
-    // Dialog edycji — pokazujemy gdy taskToEdit != null
     taskToEdit?.let { task ->
         EditTaskDialog(
             task = task,
@@ -40,6 +42,19 @@ fun HomeScreen(
                 taskToEdit = null
             }
         )
+    }
+
+    if (showRemoteSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showRemoteSheet = false },
+            sheetState = remoteSheetState,
+        ) {
+            RemoteSuggestionsSheetContent(
+                uiState = uiState,
+                onRefresh = { viewModel.refreshRemote() },
+                onImport = { viewModel.importFromRemote(it) },
+            )
+        }
     }
 
     Scaffold(
@@ -55,7 +70,6 @@ fun HomeScreen(
                 .padding(innerPadding),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            // Pole do wpisania nowego zadania
             item {
                 Row(
                     modifier = Modifier
@@ -80,7 +94,6 @@ fun HomeScreen(
                 }
             }
 
-            // Lista lokalnych zadań
             if (uiState.tasks.isEmpty()) {
                 item {
                     Box(
@@ -108,70 +121,112 @@ fun HomeScreen(
                 }
             }
 
-            // Sekcja propozycji z API
             item {
-                Row(
+                FilledTonalButton(
+                    onClick = { showRemoteSheet = true },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 8.dp, top = 16.dp, bottom = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                 ) {
-                    Text(
-                        text = stringResource(R.string.task_remote_section),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    TextButton(onClick = { viewModel.refreshRemote() }) {
-                        Text(stringResource(R.string.task_remote_refresh))
-                    }
-                }
-            }
-
-            when {
-                uiState.isLoadingRemote -> item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                uiState.remoteError != null -> item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.task_remote_error),
-                            color = MaterialTheme.colorScheme.error
+                    if (uiState.isLoadingRemote) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.refreshRemote() }) {
-                            Text(stringResource(R.string.task_remote_refresh))
-                        }
+                        Spacer(modifier = Modifier.width(10.dp))
                     }
-                }
-                else -> items(uiState.remoteSuggestions, key = { "remote_${it.id}" }) { task ->
-                    ListItem(
-                        headlineContent = { Text(task.title) },
-                        trailingContent = {
-                            TextButton(onClick = { viewModel.importFromRemote(task) }) {
-                                Text(stringResource(R.string.task_import_from_remote))
-                            }
-                        }
-                    )
-                    HorizontalDivider()
+                    Text(stringResource(R.string.task_remote_open_sheet))
                 }
             }
         }
     }
 }
 
-/** Pojedynczy element listy zadań. */
+@Composable
+private fun RemoteSuggestionsSheetContent(
+    uiState: HomeUiState,
+    onRefresh: () -> Unit,
+    onImport: (Task) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(bottom = 24.dp)
+    ) {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.task_remote_section),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                TextButton(onClick = onRefresh, enabled = !uiState.isLoadingRemote) {
+                    Text(stringResource(R.string.task_remote_refresh))
+                }
+            }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        }
+
+        when {
+            uiState.isLoadingRemote -> item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            uiState.remoteError != null -> item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = stringResource(R.string.task_remote_error),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = onRefresh) {
+                        Text(stringResource(R.string.task_remote_refresh))
+                    }
+                }
+            }
+
+            uiState.remoteSuggestions.isEmpty() -> item {
+                Text(
+                    text = stringResource(R.string.task_remote_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp),
+                )
+            }
+
+            else -> items(uiState.remoteSuggestions, key = { "remote_${it.id}" }) { task ->
+                ListItem(
+                    headlineContent = { Text(task.title) },
+                    trailingContent = {
+                        TextButton(onClick = { onImport(task) }) {
+                            Text(stringResource(R.string.task_import_from_remote))
+                        }
+                    },
+                )
+                HorizontalDivider()
+            }
+        }
+    }
+}
+
 @Composable
 private fun TaskItem(
     task: Task,
