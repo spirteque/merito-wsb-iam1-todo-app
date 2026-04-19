@@ -1,6 +1,7 @@
 package com.example.todoapp.ui.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,7 +43,7 @@ private val bottomNavItems = listOf(
  * Główny composable aplikacji — odpowiada za:
  * - motyw (ciemny/jasny),
  * - TopAppBar z przyciskiem otwierającym Navigation Drawer,
- * - Navigation Drawer z dostępem do mapy,
+ * - Navigation Drawer (strona główna, mapa),
  * - Bottom Navigation Bar (Home, Ustawienia, Kontakt),
  * - NavHost ze wszystkimi ekranami.
  */
@@ -63,25 +65,69 @@ fun AppRoot(authRepository: AuthRepository) {
             currentRoute == Destination.Register.route
 
     TodoAppTheme(darkTheme = darkMode) {
+        val scheme = MaterialTheme.colorScheme
+        val drawerItemColors = NavigationDrawerItemDefaults.colors(
+            selectedContainerColor = scheme.primaryContainer,
+            selectedIconColor = scheme.onPrimaryContainer,
+            selectedTextColor = scheme.onPrimaryContainer,
+            unselectedContainerColor = Color.Transparent,
+            unselectedIconColor = scheme.onSurfaceVariant,
+            unselectedTextColor = scheme.onSurfaceVariant,
+        )
+        val bottomItemColors = NavigationBarItemDefaults.colors(
+            selectedIconColor = scheme.primary,
+            selectedTextColor = scheme.primary,
+            indicatorColor = scheme.primaryContainer,
+            unselectedIconColor = scheme.onSurfaceVariant,
+            unselectedTextColor = scheme.onSurfaceVariant,
+        )
+
         ModalNavigationDrawer(
             drawerState = drawerState,
             gesturesEnabled = !isAuthScreen,
             drawerContent = {
-                ModalDrawerSheet {
+                ModalDrawerSheet(
+                    drawerShape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp),
+                    drawerContainerColor = scheme.surfaceContainerLow,
+                    drawerContentColor = scheme.onSurface,
+                ) {
                     Text(
                         text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleLarge,
+                        color = scheme.primary,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
                     )
-                    HorizontalDivider()
+                    HorizontalDivider(color = scheme.outlineVariant)
+                    NavigationDrawerItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = null) },
+                        label = { Text(stringResource(R.string.nav_home)) },
+                        selected = currentRoute == Destination.Home.route,
+                        colors = drawerItemColors,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate(Destination.Home.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
                     NavigationDrawerItem(
                         icon = { Icon(Icons.Default.Map, contentDescription = null) },
                         label = { Text(stringResource(R.string.nav_map)) },
                         selected = currentRoute == Destination.Map.route,
+                        colors = drawerItemColors,
                         onClick = {
                             scope.launch { drawerState.close() }
                             navController.navigate(Destination.Map.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
                                 launchSingleTop = true
+                                restoreState = true
                             }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -94,12 +140,19 @@ fun AppRoot(authRepository: AuthRepository) {
                     if (!isAuthScreen) {
                         @OptIn(ExperimentalMaterial3Api::class)
                         TopAppBar(
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = scheme.surface,
+                                titleContentColor = scheme.onSurface,
+                                navigationIconContentColor = scheme.primary,
+                                actionIconContentColor = scheme.onSurface,
+                            ),
                             title = { Text(stringResource(R.string.app_name)) },
                             navigationIcon = {
                                 IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                     Icon(
                                         imageVector = Icons.Default.Menu,
-                                        contentDescription = "Menu"
+                                        contentDescription = "Menu",
+                                        tint = scheme.primary,
                                     )
                                 }
                             }
@@ -108,7 +161,11 @@ fun AppRoot(authRepository: AuthRepository) {
                 },
                 bottomBar = {
                     if (!isAuthScreen) {
-                        NavigationBar {
+                        NavigationBar(
+                            containerColor = scheme.surfaceContainer,
+                            contentColor = scheme.onSurface,
+                            tonalElevation = 2.dp,
+                        ) {
                             val currentDestination = navBackStackEntry?.destination
                             bottomNavItems.forEach { item ->
                                 NavigationBarItem(
@@ -117,6 +174,7 @@ fun AppRoot(authRepository: AuthRepository) {
                                     selected = currentDestination?.hierarchy?.any {
                                         it.route == item.destination.route
                                     } == true,
+                                    colors = bottomItemColors,
                                     onClick = {
                                         navController.navigate(item.destination.route) {
                                             popUpTo(navController.graph.findStartDestination().id) {

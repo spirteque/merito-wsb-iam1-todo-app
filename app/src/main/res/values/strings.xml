@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TodoApp</string>
+    <string name="app_name">DoZrobix</string>
 
     <!-- Navigation -->
-    <string name="nav_home">Home</string>
+    <string name="nav_home">Strona główna</string>
     <string name="nav_settings">Ustawienia</string>
     <string name="nav_contact">Kontakt</string>
     <string name="nav_map">Mapa</string>
@@ -25,6 +25,8 @@
     <string name="task_delete">Usuń</string>
     <string name="task_empty">Brak zadań. Dodaj pierwsze!</string>
     <string name="task_remote_section">Propozycje z sieci</string>
+    <string name="task_remote_open_sheet">Zobacz propozycje z sieci</string>
+    <string name="task_remote_empty">Brak propozycji do wyświetlenia.</string>
     <string name="task_remote_refresh">Odśwież</string>
     <string name="task_remote_error">Błąd pobierania. Spróbuj ponownie.</string>
     <string name="task_import_from_remote">Importuj</string>
